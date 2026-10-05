@@ -107,7 +107,7 @@ canvas{{width:100%;height:420px}}footer{{color:var(--m);font-size:12px;text-alig
 <div class="kpi"><b>{d['players']}</b>oyuncu</div><div class="kpi"><b>{d['games'] * 2}</b>takım box score</div></div>
 <div class="panel"><h2>📊 Puan durumu</h2>{st}</div>
 <div class="panel"><h2>🎯 Hücum vs savunma reytingi (100 pozisyon başına)</h2>
-<p class="muted">Sağ alt = iyi hücum + iyi savunma. Turuncu = Türk takımları.</p><canvas id="c"></canvas></div>
+<p class="muted">Sağ üst = iyi hücum + iyi savunma (DefRtg düştükçe yukarı çıkar). Turuncu = Türk takımları.</p><canvas id="c"></canvas></div>
 <div class="panel"><h2>🧪 Dean Oliver'ın Four Factors'ı</h2>{ff}</div>
 <div class="panel"><h2>⭐ PIR liderleri</h2>{ld}</div>
 <div class="panel"><h2>🕒 Son maçlar</h2>{rc}</div>
@@ -120,7 +120,7 @@ x.clearRect(0,0,W,H);if(!D.length)return;const o=D.map(a=>a.o),d=D.map(a=>a.d);
 const [o0,o1]=[Math.min(...o)-2,Math.max(...o)+2],[d0,d1]=[Math.min(...d)-2,Math.max(...d)+2];
 const X=v=>p+(v-o0)/(o1-o0)*(W-2*p),Y=v=>p+(v-d0)/(d1-d0)*(H-2*p);
 x.strokeStyle="#252a35";x.strokeRect(p,p,W-2*p,H-2*p);x.font=12*devicePixelRatio+"px system-ui";x.fillStyle="#8a90a2";
-x.fillText("Hücum reytingi →",W/2-40,H-12);x.save();x.translate(14,H/2+60);x.rotate(-Math.PI/2);x.fillText("← daha iyi savunma",0,0);x.restore();
+x.fillText("Hücum reytingi →",W/2-40,H-12);x.save();x.translate(14,H/2+60);x.rotate(-Math.PI/2);x.fillText("daha iyi savunma →",0,0);x.restore();
 D.forEach(a=>{{x.fillStyle=a.tr?"#ff7a1a":"#4ecdc4";x.beginPath();x.arc(X(a.o),Y(a.d),6*devicePixelRatio,0,7);x.fill();
 x.fillStyle="#e9e9ec";x.fillText(a.t,X(a.o)+9*devicePixelRatio,Y(a.d)+4*devicePixelRatio);}});}}
 draw();addEventListener("resize",draw);
