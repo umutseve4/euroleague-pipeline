@@ -1,0 +1,13 @@
+[project]
+name = "elpipe"
+version = "0.1.0"
+description = "Incremental EuroLeague data pipeline (live API -> SQLite star schema -> SQL marts -> dashboard)"
+requires-python = ">=3.10"
+dependencies = []   # sadece standart kütüphane
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]

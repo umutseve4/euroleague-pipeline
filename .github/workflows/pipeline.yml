@@ -1,0 +1,56 @@
+name: EuroLeague veri hattı
+
+on:
+  schedule:
+    - cron: "30 5 * * *"     # her gün 05:30 UTC (08:30 TR) — maçlar akşam biter
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: "Sezon kodları (boşlukla). Ör: E2025 E2026 · EuroCup: U2026"
+        default: "E2026"
+  push:
+    branches: [main]
+    paths: ["src/**", "sql/**", "tests/**", ".github/workflows/**"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pytest
+      - run: pytest -q
+
+  run:
+    needs: test
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - name: Extract → Transform → Load (sadece yeni maçlar)
+        run: python -m elpipe.pipeline --season ${{ github.event.inputs.seasons || 'E2026' }}
+
+      - name: SQL marts + pano
+        run: python -m elpipe.report --season E2026 || python -m elpipe.report
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f data/euroleague.db docs/index.html
+          git diff --cached --quiet || git commit -m "data: $(date -u +'%Y-%m-%d') EuroLeague güncellemesi"
+          git pull --rebase --quiet || true
+          git push
