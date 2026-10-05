@@ -8,6 +8,8 @@ on:
       seasons:
         description: "Sezon kodları (boşlukla). Ör: E2025 E2026 · EuroCup: U2026"
         default: "E2026"
+  repository_dispatch:
+    types: [run-pipeline]    # API ile tetikleme; client_payload.seasons = "E2025 E2026"
   push:
     branches: [main]
     paths: ["src/**", "sql/**", "tests/**", ".github/workflows/**"]
@@ -35,13 +37,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PYTHONPATH: src
+      SEASONS: ${{ github.event.inputs.seasons || github.event.client_payload.seasons || 'E2026' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
 
       - name: Extract → Transform → Load (sadece yeni maçlar)
-        run: python -m elpipe.pipeline --season ${{ github.event.inputs.seasons || 'E2026' }}
+        run: python -m elpipe.pipeline --season $SEASONS
 
       - name: SQL marts + pano
         run: python -m elpipe.report --season E2026 || python -m elpipe.report
